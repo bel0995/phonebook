@@ -14,48 +14,44 @@
 
 void connection_handler(int socket_desc) {
     int ret;
-   /* char* allowed_command = SERVER_COMMAND;
-    size_t allowed_command_len = strlen(allowed_command); 
-    * */
+
     char send_buf[256];
 
     // receive command from client OR READ
     char recv_buf[256];
     size_t recv_buf_len = sizeof(recv_buf);
-    int recv_bytes;
-
    
-    while ( (recv_bytes = recv(socket_desc, recv_buf, recv_buf_len, 0)) < 0 ) {
-        if (errno == EINTR) continue;
-        ERROR_HELPER(-1, "Cannot write to socket");
-    }     
+	
+	if (fork()==0){
+		do{
+			ret= read(socket_desc, recv_buf, recv_buf_len); 
+			if (ret==0) break;
+			if(ret== -1){
+				if (errno == EINTR) continue;
+				exit(EXIT_FAILURE);
+			}
+		printf("  messaggio = %s \n", recv_buf);
+    }while(strcmp(recv_buf, "quit"));     
 
-    if (DEBUG) fprintf(stderr, "Message of %d bytes received\n", recv_bytes);
-
-    // parse command received and write reply in send_buf
-   /* if (recv_bytes == allowed_command_len && !memcmp(recv_buf, allowed_command, allowed_command_len)) {
-        time_t curr_time;
-        time(&curr_time);
-        sprintf(send_buf, "%s", ctime(&curr_time));
-    } else {
-        sprintf(send_buf, "INVALID REQUEST");
-    }
-    */
+ 
+    
 
     // send reply
     size_t server_message_len = strlen(send_buf);
  // SEND OR WRITE
-    while ( (ret = send(socket_desc, send_buf, server_message_len, 0)) < 0 ) {
-        if (errno == EINTR) continue;
-        ERROR_HELPER(-1, "Cannot write to the socket");
-    }
-    
-    if (DEBUG) fprintf(stderr, "Message of %d bytes sent\n", ret);
-
+	ret=write(socket_desc,send_buf,server_message_len);
+	/*	if(ret== -1){
+			if (errno == EINTR) continue;
+			exit(EXIT_FAILURE);
+			}
+			*/
+		}
     // close socket
+    else 
     ret = close(socket_desc);
     ERROR_HELPER(ret, "Cannot close socket for incoming connection");
-}
+	}
+
 
 
 int main(int argc, char* argv[]) {
@@ -105,9 +101,5 @@ int main(int argc, char* argv[]) {
     }
 
     exit(EXIT_SUCCESS); // this will never be executed
-
+    
 }
-
-
-
-
