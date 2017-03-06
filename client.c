@@ -7,6 +7,8 @@
 #include <netinet/in.h> // struct sockaddr_in
 #include <sys/socket.h>
 
+
+
 #include "common.h"
 
 int main(int argc, char* argv[]) {
@@ -58,6 +60,19 @@ int main(int argc, char* argv[]) {
 
     recv_buf[recv_bytes] = '\0'; // add string terminator manually!
    */
+    char recv_buf[256];
+    size_t recv_buf_len = sizeof(recv_buf);
+       
+   
+   printf("digita la stringa da inviare (quit per terminare)");
+   do{
+	   scanf("%s", recv_buf);
+	   write(socket_desc, recv_buf, recv_buf_len - 1);
+   }
+   while(strcmp(recv_buf,"quit")!=0);
+   
+	   read(socket_desc, recv_buf, recv_buf_len - 1);
+	   printf("Messaggio del server %s \n",recv_buf );
     // close the socket
     ret = close(socket_desc);
     ERROR_HELPER(ret, "Cannot close socket");
