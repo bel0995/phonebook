@@ -18,7 +18,8 @@
 #define SERVER_PORT     1999
 
 
-
+#define DEBUG           1   // display debug messages
+#define MAX_CODA 3   // max number of connections the server can queue
 #endif
 
 
